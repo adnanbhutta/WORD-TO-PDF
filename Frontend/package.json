@@ -1,7 +1,10 @@
 {
-  "name": "frontend",
+  "name": "word-to-pdf-converter", 
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "A fast, secure, and free Word to PDF converter built with React & TailwindCSS.",
+  "author": "Adnan ALi",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "vite",

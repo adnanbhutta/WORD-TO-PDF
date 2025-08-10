@@ -1,107 +1,109 @@
 import React, { useState } from "react";
-import { FaFileWord } from "react-icons/fa6";
+import { FaFileWord, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import axios from "axios";
+
 function Home() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [convert, setConvert] = useState("");
   const [downloadError, setDownloadError] = useState("");
 
   const handleFileChange = (e) => {
-    // console.log(e.target.files[0]);
     setSelectedFile(e.target.files[0]);
+    setConvert("");
+    setDownloadError("");
   };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!selectedFile) {
       setConvert("Please select a file");
       return;
     }
+
     const formData = new FormData();
     formData.append("file", selectedFile);
+
     try {
       const response = await axios.post(
         "http://localhost:3000/convertFile",
         formData,
-        {
-          responseType: "blob",
-        }
+        { responseType: "blob" }
       );
-      console.log(response.data);
+
       const url = window.URL.createObjectURL(new Blob([response.data]));
-      console.log(url);
       const link = document.createElement("a");
-      console.log(link);
       link.href = url;
-      console.log(link);
       link.setAttribute(
         "download",
         selectedFile.name.replace(/\.[^/.]+$/, "") + ".pdf"
       );
-      console.log(link);
       document.body.appendChild(link);
-      console.log(link);
       link.click();
-      link.parentNode.removeChild(link);
+      link.remove();
+
       setSelectedFile(null);
       setDownloadError("");
-      setConvert("File Converted Successfully");
+      setConvert("✅ File Converted Successfully!");
     } catch (error) {
-      console.log(error);
-      if (error.response && error.response.status == 400) {
-        setDownloadError("Error occurred: ", error.response.data.message);
+      if (error.response && error.response.status === 400) {
+        setDownloadError(error.response.data.message);
       } else {
         setConvert("");
+        setDownloadError("❌ Something went wrong!");
       }
     }
   };
-  return (
-    <>
-      <div className="max-w-screen-2xl mx-auto container px-6 py-3 md:px-40">
-        <div className="flex h-screen items-center justify-center">
-          <div className="border-2 border-dashed px-4 py-2 md:px-8 md:py-6 border-indigo-400 rounded-lg shadow-lg">
-            <h1 className="text-3xl font-bold text-center mb-4">
-              Convert Word to PDF Online
-            </h1>
-            <p className="text-sm text-center mb-5">
-              Easily convert Word documents to PDF format online, without having
-              to install any software.
-            </p>
 
-            <div className="flex flex-col items-center space-y-4">
-              <input
-                type="file"
-                accept=".doc,.docx"
-                onChange={handleFileChange}
-                className="hidden"
-                id="FileInput"
-              />
-              <label
-                htmlFor="FileInput"
-                className="w-full flex items-center justify-center px-4 py-6 bg-gray-100 text-gray-700 rounded-lg shadow-lg cursor-pointer border-blue-300 hover:bg-blue-700 duration-300 hover:text-white"
-              >
-                <FaFileWord className="text-3xl mr-3" />
-                <span className="text-2xl mr-2 ">
-                  {selectedFile ? selectedFile.name : "Choose File"}
-                </span>
-              </label>
-              <button
-                onClick={handleSubmit}
-                disabled={!selectedFile}
-                className="text-white bg-blue-500 hover:bg-blue-700 disabled:bg-gray-400 disabled:pointer-events-none duration-300 font-bold px-4 py-2 rounded-lg"
-              >
-                Convert File
-              </button>
-              {convert && (
-                <div className="text-green-500 text-center">{convert}</div>
-              )}
-              {downloadError && (
-                <div className="text-red-500 text-center">{downloadError}</div>
-              )}
-            </div>
-          </div>
-        </div>
+  return (
+    <div className="bg-gradient-to-tr from-gray-900 via-black to-gray-800 min-h-screen flex items-center justify-center px-4">
+      <div className="max-w-lg w-full bg-gray-900/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-gray-700 transition-all hover:border-purple-500/70 hover:shadow-purple-500/40 hover:scale-105 duration-300">
+        <h1 className="text-4xl font-extrabold text-center text-white mb-3">
+          SwiftPDF Converter
+        </h1>
+        <p className="text-center text-gray-400 mb-6">
+          Upload a Word document & convert to PDF instantly — 100% Free!
+        </p>
+
+        {/* File Upload */}
+        <input
+          type="file"
+          accept=".doc,.docx"
+          onChange={handleFileChange}
+          className="hidden"
+          id="FileInput"
+        />
+        <label
+          htmlFor="FileInput"
+          className="flex items-center justify-center gap-3 bg-gray-800 hover:bg-purple-600 text-gray-300 hover:text-white font-medium py-6 px-6 rounded-xl cursor-pointer transition duration-300 border-2 border-dashed border-gray-600 hover:border-purple-500"
+        >
+          <FaFileWord className="text-4xl text-purple-400" />
+          <span className="text-lg">
+            {selectedFile ? selectedFile.name : "Click or Drag to Choose File"}
+          </span>
+        </label>
+
+        {/* Convert Button */}
+        <button
+          onClick={handleSubmit}
+          disabled={!selectedFile}
+          className="mt-6 w-full bg-gradient-to-r from-purple-600 to-pink-500 hover:from-pink-500 hover:to-purple-600 disabled:opacity-50 text-white font-semibold py-3 rounded-full transition duration-300 shadow-lg shadow-purple-500/30"
+        >
+          Convert File
+        </button>
+
+        {/* Messages */}
+        {convert && (
+          <p className="mt-4 flex items-center justify-center gap-2 text-green-400 text-center font-medium">
+            <FaCheckCircle /> {convert}
+          </p>
+        )}
+        {downloadError && (
+          <p className="mt-4 flex items-center justify-center gap-2 text-red-400 text-center font-medium">
+            <FaTimesCircle /> {downloadError}
+          </p>
+        )}
       </div>
-    </>
+    </div>
   );
 }
 
